@@ -48,7 +48,14 @@ class TrieNode:
     # Representation method
     #
     def __repr__(self):
-        return f"TrieNode({self.char}, {self.weight})"
+        return f"({self.char}, {self.weight})"
+    
+    ##################################################################  
+    #
+    # String method
+    #
+    def __str__(self):
+        return f"TrieNode{self.__repr__()}"
 
 ##################################################################  
 #
@@ -80,7 +87,14 @@ class Trie:
     # Representation method
     #
     def __repr__(self):
-        return f"Trie{self.unpack()}"
+        return str(self.unpack())
+    
+    ##################################################################  
+    #
+    # String method
+    #
+    def __str__(self):
+        return f"Trie({self.__repr__()})"
     
     ##################################################################  
     #
@@ -203,9 +217,7 @@ def main() -> None:
         read_data(path.join(DATA_PATH, args.filename))
     )
 
-    print(trie)
-    print(trie.contains("sada"))
-    print(trie.get_prefix_node("s"))
+    
 
     print(GOODBYE_MESSAGE)
     
