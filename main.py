@@ -60,11 +60,11 @@ class Trie:
     # Named constructor to build a trie from a given list of weights and terms
     # 
     @classmethod
-    def from_list(cls, items: list[int, str]):
+    def from_list(cls, items: list[str]):
         root = cls()
 
         for weight, term in items:
-            root.insert(term, weight)
+            root.insert(term, int(weight))
 
         return root
     
@@ -82,6 +82,36 @@ class Trie:
             curr_node = curr_node.children[char]
 
         curr_node.weight = weight
+
+    ##################################################################  
+    #
+    # Unpacks the trie as a list of the weight and term pairs
+    #
+    def unpack(self) -> list[tuple[str, int]]:
+        ##################################################################  
+        #
+        # Recursively unpacks the trie
+        #
+        def _unpack(root: TrieNode, term: str, items: list[tuple[str, int]]):
+            if root.weight != None:
+                items.append((term, root.weight))
+
+            for char, node in root.children.items():
+                _unpack(node, term + char, items)
+        
+        items: list[tuple[str, int]] = []
+
+        for char, node in self.root.children.items():
+            _unpack(node, char, items)
+
+        return items
+    
+    ##################################################################  
+    #
+    # Representation method
+    #
+    def __repr__(self) -> str:
+        return str(self.unpack())
 
 ##################################################################  
 #
@@ -112,15 +142,13 @@ def get_args() -> Namespace:
 #
 # Reads the data from the file at a given file path
 #
-def read_data(file_path: str) -> list[int, str]:
+def read_data(file_path: str) -> list[str]:
     with open(file_path, "r") as f_txt:
-        n = int(f_txt.readline())
+        f_txt.readline()
 
-        items = [
-            f_txt.readline().strip().split('\t') for i in range(n)
+        return [
+            line.strip().split('\t') for line in f_txt.readlines()
         ]
-        
-        return items
         
 ##################################################################  
 #
@@ -138,7 +166,7 @@ def main() -> None:
         read_data(path.join(DATA_PATH, args.filename))
     )
 
-    print(trie)
+
 
     print(GOODBYE_MESSAGE)
     
