@@ -42,6 +42,13 @@ class TrieNode:
     @classmethod
     def root(cls):
         return cls(char=None, weight=None)
+    
+    ##################################################################  
+    #
+    # Representation method
+    #
+    def __repr__(self):
+        return f"TrieNode({self.char}, {self.weight})"
 
 ##################################################################  
 #
@@ -70,9 +77,16 @@ class Trie:
     
     ##################################################################  
     #
+    # Representation method
+    #
+    def __repr__(self):
+        return f"Trie{self.unpack()}"
+    
+    ##################################################################  
+    #
     # Inserts a given word into the trie with a given weight
     #
-    def insert(self, word: str, weight: int):
+    def insert(self, word: str, weight: int) -> None:
         curr_node = self.root
 
         for char in word:
@@ -82,6 +96,36 @@ class Trie:
             curr_node = curr_node.children[char]
 
         curr_node.weight = weight
+
+    ##################################################################  
+    #
+    # Returns true if a given word exists in the trie, and false otherwise
+    #
+    def contains(self, word: str) -> bool:
+        curr_node = self.root
+
+        for char in word:
+            if char not in curr_node.children:
+                return False
+
+            curr_node = curr_node.children[char]
+
+        return curr_node.weight != None
+    
+    ##################################################################  
+    #
+    # Returns the Trie node of the last character in a given prefix if it exists
+    #
+    def get_prefix_node(self, prefix: str) -> TrieNode | None: 
+        curr_node = self.root
+
+        for char in prefix:
+            if char not in curr_node.children:
+                return None
+
+            curr_node = curr_node.children[char]
+
+        return curr_node
 
     ##################################################################  
     #
@@ -105,13 +149,6 @@ class Trie:
             _unpack(node, char, items)
 
         return items
-    
-    ##################################################################  
-    #
-    # Representation method
-    #
-    def __repr__(self) -> str:
-        return str(self.unpack())
 
 ##################################################################  
 #
@@ -166,7 +203,9 @@ def main() -> None:
         read_data(path.join(DATA_PATH, args.filename))
     )
 
-
+    print(trie)
+    print(trie.contains("sada"))
+    print(trie.get_prefix_node("s"))
 
     print(GOODBYE_MESSAGE)
     
