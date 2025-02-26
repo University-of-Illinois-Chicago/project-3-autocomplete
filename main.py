@@ -14,6 +14,7 @@
 #
 
 from argparse import ArgumentParser, ArgumentTypeError, Namespace
+from heapq import nlargest
 from os import path
 
 WELCOME_MESSAGE = "Autocomplete CLI:"
@@ -75,12 +76,23 @@ class Trie:
     # 
     @classmethod
     def from_list(cls, items: list[str]):
-        root = cls()
+        trie = cls()
 
         for weight, term in items:
-            root.insert(term, int(weight))
+            trie.insert(term, int(weight))
 
-        return root
+        return trie
+    
+    ##################################################################  
+    #
+    # Named constructor to build a trie from a given node
+    # 
+    @classmethod
+    def from_node(cls, node: TrieNode):
+        trie = cls()
+        trie.root = node
+
+        return trie
     
     ##################################################################  
     #
@@ -130,7 +142,7 @@ class Trie:
     #
     # Returns the Trie node of the last character in a given prefix if it exists
     #
-    def get_prefix_node(self, prefix: str) -> TrieNode | None: 
+    def get_prefix_trie(self, prefix: str) -> "Trie": 
         curr_node = self.root
 
         for char in prefix:
@@ -139,7 +151,7 @@ class Trie:
 
             curr_node = curr_node.children[char]
 
-        return curr_node
+        return self.from_node(curr_node)
 
     ##################################################################  
     #
@@ -150,19 +162,33 @@ class Trie:
         #
         # Recursively unpacks the trie
         #
-        def _unpack(root: TrieNode, term: str, items: list[tuple[str, int]]):
+        def _unpack(root: TrieNode, items: list[tuple[str, int]], term: str):
             if root.weight != None:
                 items.append((term, root.weight))
 
             for char, node in root.children.items():
-                _unpack(node, term + char, items)
+                _unpack(node, items, term + char)
         
         items: list[tuple[str, int]] = []
+        term = self.root.char or ""
 
         for char, node in self.root.children.items():
-            _unpack(node, char, items)
+            _unpack(node, items, term + char)
 
         return items
+    
+    ##################################################################  
+    #
+    # get_profile
+    #
+    # Returns a top k matches from the trie for the given prefix
+    #
+    def get_top_k_matches(self, prefix: str, k: int) -> list[tuple[str, int]]:
+        return nlargest(
+            k, 
+            self.get_prefix_trie(prefix).unpack(), 
+            key=lambda item: item[1]
+        )
 
 ##################################################################  
 #
@@ -181,9 +207,26 @@ def get_args() -> Namespace:
         if not path.isfile(path.join(DATA_PATH, arg)):
             raise ArgumentTypeError(f"{arg} does not exist or is not a file.")
         return arg
+    
+    ##################################################################  
+    #
+    # positive_int
+    #
+    # Validates that the given value is a positive integer
+    #
+    def positive_int(arg: str) -> int:
+        try:
+            value = int(arg) 
+        except ValueError:
+            raise ArgumentTypeError(f"{arg} is not an integer")
+        
+        if value <= 0:
+            raise ArgumentTypeError(f"{value} is not a positive integer")
+        return value
 
     parser = ArgumentParser()
     parser.add_argument("filename", type=existing_valid_file, help="The required filename to build a trie with.")
+    parser.add_argument("--k", type=positive_int, default=5, help="An optional integer parameter to select the top k matches.")
 
     return parser.parse_args()
 
@@ -217,7 +260,17 @@ def main() -> None:
         read_data(path.join(DATA_PATH, args.filename))
     )
 
-    
+    while True:
+        prefix = input("\nEnter a prefix (or # to quit): ")
+        
+        if prefix == "#":
+            break
+
+        matches = trie.get_top_k_matches(prefix, args.k)
+
+        print(f">> {prefix}")
+        for suffix, weight in matches:
+            print(f"\t{prefix}{suffix}, {weight}")
 
     print(GOODBYE_MESSAGE)
     
