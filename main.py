@@ -170,10 +170,9 @@ class Trie:
                 _unpack(node, items, term + char)
         
         items: list[tuple[str, int]] = []
-        term = self.root.char or ""
 
         for char, node in self.root.children.items():
-            _unpack(node, items, term + char)
+            _unpack(node, items, char)
 
         return items
     
