@@ -1,6 +1,8 @@
 from abc import abstractmethod
 from heapq import nlargest
 
+from .nodes.node import TrieNode
+
 #
 # Trie Abstraction
 # 
@@ -64,7 +66,7 @@ class Trie:
     # Returns the Trie node of the last character in a given prefix if it exists
     #
     @abstractmethod
-    def get_prefix_trie(self, prefix: str) -> "Trie": 
+    def get_prefix_node(self, prefix: str) -> TrieNode: 
         pass
 
     #
@@ -80,6 +82,6 @@ class Trie:
     def get_top_k_matches(self, prefix: str, k: int) -> list[tuple[str, int]]:
         return nlargest(
             k, 
-            self.get_prefix_trie(prefix).unpack(), 
+            self.from_node(self.get_prefix_node(prefix)).unpack(), 
             key=lambda item: item[1]
         )

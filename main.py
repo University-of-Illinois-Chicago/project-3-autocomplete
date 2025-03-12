@@ -7,8 +7,8 @@
 # 
 # File: main.py
 #
-# Description TODO.
-# 
+# This is the autocomplete program implemented as a CLI program.
+#
 # Usage: main.py [-h] filename
 # Example: python main.py tiny.txt
 #
@@ -16,7 +16,9 @@
 from argparse import ArgumentParser, ArgumentTypeError, Namespace
 from os import path
 
-from tries.dynamic_trie import DynamicTrie as Trie
+from tries.hash_trie import HashTrie as Trie
+# from tries.dynamic_trie import DynamicTrie as Trie
+# from tries.static_trie import StaticTrie as Trie
 
 WELCOME_MESSAGE = "Autocomplete CLI:"
 GOODBYE_MESSAGE = "\nThank you for using Autocomplete CLI! Terminating..."

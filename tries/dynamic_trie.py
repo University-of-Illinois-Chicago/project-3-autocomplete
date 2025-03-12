@@ -43,9 +43,9 @@ class DynamicTrie(Trie):
         return curr_node.weight != None
     
     #
-    # Returns the Trie node of the last character in a given prefix if it exists
+    # Returns the trie node of the last character in a given prefix if it exists
     #
-    def get_prefix_trie(self, prefix: str) -> DynamicTrieNode: 
+    def get_prefix_node(self, prefix: str) -> DynamicTrieNode: 
         curr_node = self.root
 
         for char in prefix:
@@ -54,7 +54,7 @@ class DynamicTrie(Trie):
             if curr_node == None:
                 return None 
 
-        return self.from_node(curr_node)
+        return curr_node
 
     #
     # Unpacks the trie as a list of the weight and term pairs

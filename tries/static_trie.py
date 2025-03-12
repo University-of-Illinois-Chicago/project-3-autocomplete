@@ -44,9 +44,9 @@ class StaticTrie(Trie):
         return curr_node.weight != None
     
     #
-    # Returns the Trie node of the last character in a given prefix if it exists
+    # Returns the trie node of the last character in a given prefix if it exists
     #
-    def get_prefix_trie(self, prefix: str) -> StaticTrieNode: 
+    def get_prefix_node(self, prefix: str) -> StaticTrieNode: 
         curr_node = self.root
 
         for char in prefix:
@@ -57,7 +57,7 @@ class StaticTrie(Trie):
             
             curr_node = curr_node.children[index]
         
-        return self.from_node(curr_node)
+        return curr_node
 
     #
     # Unpacks the trie as a list of the weight and term pairs
