@@ -87,7 +87,7 @@ class Trie:
         top_k_matches = heapq.nlargest(
             k, 
             self.from_node(self.get_prefix_node(prefix)).unpack(), 
-            key=lambda item: item[1]
+            key=lambda item: -item[1]
         )
 
         #

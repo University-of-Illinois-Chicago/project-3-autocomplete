@@ -153,7 +153,7 @@ def main() -> None:
     curses.wrapper(autocomplete, args, trie)
 
     print(GOODBYE_MESSAGE)
-    sleep(2)
+    sleep(1)
     
 # Just calls main function
 if __name__=="__main__":

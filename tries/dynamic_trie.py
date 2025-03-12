@@ -64,7 +64,7 @@ class DynamicTrie(Trie):
         # Recursively (DFS) unpacks the trie
         #
         def dfs(root: DynamicTrieNode, items: list[tuple[str, int]], prefix: str):
-            if root.weight is not None:
+            if root.weight != None:
                 items.append((prefix, root.weight))
 
             for child in root.children:
