@@ -30,7 +30,7 @@ class Trie:
     # Named constructor to build a trie from a given node
     # 
     @classmethod
-    def from_node(cls, node):
+    def from_node(cls, node: TrieNode):
         trie = cls()
         trie.root = node
 
