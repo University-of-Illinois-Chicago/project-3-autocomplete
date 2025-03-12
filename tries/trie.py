@@ -1,5 +1,5 @@
+import heapq
 from abc import abstractmethod
-from heapq import nlargest
 
 from .nodes.node import TrieNode
 
@@ -80,8 +80,37 @@ class Trie:
     # Returns a top k matches from the trie for the given prefix
     #
     def get_top_k_matches(self, prefix: str, k: int) -> list[tuple[str, int]]:
-        return nlargest(
+        #
+        # Using heapq.nlargest
+        # O(n + k*log n)
+        #
+        top_k_matches = heapq.nlargest(
             k, 
             self.from_node(self.get_prefix_node(prefix)).unpack(), 
             key=lambda item: item[1]
         )
+
+        #
+        # Using heapq.heapify and heapq.heappop
+        # O(n + k*log n) 
+        # 
+        pq = [
+            (-weight, char) for char, weight in self.from_node(self.get_prefix_node(prefix)).unpack()
+        ] 
+        heapq.heapify(pq) 
+
+        top_k_matches = [
+            (char, -weight) for weight, char in [heapq.heappop(pq) for _ in range(k)]
+        ]
+
+        #
+        # Using sorted
+        # O(n*log n)
+        # 
+        top_k_matches = sorted(
+            self.from_node(self.get_prefix_node(prefix)).unpack(),
+            key=lambda item: item[1],
+            reverse=True
+        )[:k]
+    
+        return top_k_matches
