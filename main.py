@@ -14,191 +14,19 @@
 #
 
 from argparse import ArgumentParser, ArgumentTypeError, Namespace
-from heapq import nlargest
 from os import path
+
+from tries.dynamic_trie import DynamicTrie as Trie
 
 WELCOME_MESSAGE = "Autocomplete CLI:"
 GOODBYE_MESSAGE = "\nThank you for using Autocomplete CLI! Terminating..."
 
 DATA_PATH = "data"
-
-##################################################################  
-#
-# Trie Node implementation
-# 
-class TrieNode:
-    ##################################################################  
-    #
-    # Default constructor
-    #
-    def __init__(self, char: str | None, weight: int | None):
-        self.char = char
-        self.weight = weight
-        self.children: dict[str, TrieNode] = {}
-
-    ##################################################################  
-    #
-    # Named constructor for a root node without character and weight
-    # 
-    @classmethod
-    def root(cls):
-        return cls(char=None, weight=None)
-    
-    ##################################################################  
-    #
-    # Representation method
-    #
-    def __repr__(self):
-        return f"({self.char}, {self.weight})"
-    
-    ##################################################################  
-    #
-    # String method
-    #
-    def __str__(self):
-        return f"TrieNode{self.__repr__()}"
-
-##################################################################  
-#
-# Trie implementation
-# 
-class Trie:
-    ##################################################################  
-    #
-    # Default constructor
-    #
-    def __init__(self):
-        self.root = TrieNode.root()
-
-    ##################################################################  
-    #
-    # Named constructor to build a trie from a given list of weights and terms
-    # 
-    @classmethod
-    def from_list(cls, items: list[str]):
-        trie = cls()
-
-        for weight, term in items:
-            trie.insert(term, int(weight))
-
-        return trie
-    
-    ##################################################################  
-    #
-    # Named constructor to build a trie from a given node
-    # 
-    @classmethod
-    def from_node(cls, node: TrieNode):
-        trie = cls()
-        trie.root = node
-
-        return trie
-    
-    ##################################################################  
-    #
-    # Representation method
-    #
-    def __repr__(self):
-        return str(self.unpack())
-    
-    ##################################################################  
-    #
-    # String method
-    #
-    def __str__(self):
-        return f"Trie({self.__repr__()})"
-    
-    ##################################################################  
-    #
-    # Inserts a given word into the trie with a given weight
-    #
-    def insert(self, word: str, weight: int) -> None:
-        curr_node = self.root
-
-        for char in word:
-            if char not in curr_node.children:
-                curr_node.children[char] = TrieNode(char, weight=None)
-
-            curr_node = curr_node.children[char]
-
-        curr_node.weight = weight
-
-    ##################################################################  
-    #
-    # Returns true if a given word exists in the trie, and false otherwise
-    #
-    def contains(self, word: str) -> bool:
-        curr_node = self.root
-
-        for char in word:
-            if char not in curr_node.children:
-                return False
-
-            curr_node = curr_node.children[char]
-
-        return curr_node.weight != None
-    
-    ##################################################################  
-    #
-    # Returns the Trie node of the last character in a given prefix if it exists
-    #
-    def get_prefix_trie(self, prefix: str) -> "Trie": 
-        curr_node = self.root
-
-        for char in prefix:
-            if char not in curr_node.children:
-                return None
-
-            curr_node = curr_node.children[char]
-
-        return self.from_node(curr_node)
-
-    ##################################################################  
-    #
-    # Unpacks the trie as a list of the weight and term pairs
-    #
-    def unpack(self) -> list[tuple[str, int]]:
-        ##################################################################  
-        #
-        # Recursively unpacks the trie
-        #
-        def _unpack(root: TrieNode, items: list[tuple[str, int]], term: str):
-            if root.weight != None:
-                items.append((term, root.weight))
-
-            for char, node in root.children.items():
-                _unpack(node, items, term + char)
-        
-        items: list[tuple[str, int]] = []
-
-        for char, node in self.root.children.items():
-            _unpack(node, items, char)
-
-        return items
-    
-    ##################################################################  
-    #
-    # get_profile
-    #
-    # Returns a top k matches from the trie for the given prefix
-    #
-    def get_top_k_matches(self, prefix: str, k: int) -> list[tuple[str, int]]:
-        return nlargest(
-            k, 
-            self.get_prefix_trie(prefix).unpack(), 
-            key=lambda item: item[1]
-        )
-
-##################################################################  
-#
-# get_args
+  
 #
 # Parses the command line arguments for the program
 #
 def get_args() -> Namespace:
-    ##################################################################  
-    #
-    # existing_valid_file
     #
     # Validates that the given file exists and is a file
     #
@@ -207,9 +35,6 @@ def get_args() -> Namespace:
             raise ArgumentTypeError(f"{arg} does not exist or is not a file.")
         return arg
     
-    ##################################################################  
-    #
-    # positive_int
     #
     # Validates that the given value is a positive integer
     #
@@ -229,9 +54,6 @@ def get_args() -> Namespace:
 
     return parser.parse_args()
 
-##################################################################  
-#
-# read_data
 #
 # Reads the data from the file at a given file path
 #
@@ -243,9 +65,6 @@ def read_data(file_path: str) -> list[str]:
             line.strip().split('\t') for line in f_txt.readlines()
         ]
         
-##################################################################  
-#
-# main
 #
 # The controlling unit of the program. It prints majority of the text 
 # and calls the helper functions for the Autocomplete algorithm functionality.
