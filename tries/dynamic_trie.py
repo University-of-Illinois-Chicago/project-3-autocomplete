@@ -72,5 +72,7 @@ class DynamicTrie(Trie):
 
         items: list[tuple[str, int]] = []
 
-        dfs(self.root, items, "")
+        if self.root != None:
+            dfs(self.root, items, "")
+        
         return items

@@ -18,7 +18,11 @@ class StaticTrie(Trie):
         curr_node = self.root
 
         for char in word:
-            index = ord(char)
+            index = ord(char) - 32 # skip 32 first special characters
+
+            if index == 95: 
+                # Fail insert if it's a DEL character
+                return
 
             if curr_node.children[index] == None:
                 curr_node.children[index] = StaticTrieNode(char, None)
@@ -34,7 +38,11 @@ class StaticTrie(Trie):
         curr_node = self.root
 
         for char in word:
-            index = ord(char)
+            index = ord(char) - 32 # skip 32 first special characters
+
+            if index == 95: 
+                # Fail contains if it's a DEL character
+                return False
 
             if curr_node.children[index] == None:
                 return False
@@ -50,7 +58,7 @@ class StaticTrie(Trie):
         curr_node = self.root
 
         for char in prefix:
-            index = ord(char)
+            index = ord(char) - 32 # skip 32 first special characters
 
             if curr_node.children[index] == None:
                 return None 
@@ -72,9 +80,11 @@ class StaticTrie(Trie):
             
             for i, child in enumerate(root.children):
                 if child != None:
-                    dfs(child, items, prefix + chr(i))
+                    dfs(child, items, prefix + chr(i + 32))
 
         items: list[tuple[str, int]] = []
 
-        dfs(self.root, items, "")
+        if self.root != None:
+            dfs(self.root, items, "")
+        
         return items

@@ -10,7 +10,7 @@ class StaticTrieNode(TrieNode):
     def __init__(self, char: str | None, weight: int | None):
         self.char = char
         self.weight = weight
-        self.children: list[StaticTrieNode] = [None] * 128
+        self.children: list[StaticTrieNode] = [None] * 95
       
     #
     # String method
